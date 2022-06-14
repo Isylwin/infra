@@ -1,0 +1,1 @@
+- Adding git user name + email to global config
