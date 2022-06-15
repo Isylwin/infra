@@ -1,6 +1,6 @@
 ---
 roles:
-    - name: gantsign.git_user
     - name: gantsign.visual-studio-code
     - name: willshersystems.sshd
     - name: geerlingguy.docker
+    - name: geerlingguy.dotfiles

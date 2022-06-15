@@ -1,1 +1,1 @@
-- Adding git user name + email to global config
+- Figure out what I want with dotfiles

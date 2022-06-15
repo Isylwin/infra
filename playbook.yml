@@ -12,15 +12,12 @@
           - git
         state: latest
 
-    - name: "Set git user config"
+    - name: Install dotfiles
       include_role:
-        name: gantsign.git_user
+        name: geerlingguy.dotfiles
       vars:
-        users:
-          - username: "{{ unix_username }}"
-            git_user_name: "{{ git_user_name }}"
-            git_user_email: "{{ git_user_email }}"
-            git_user_force: "{{ git_user_force }}"
+        dotfiles_home: "/home/{{unix_username}}"
+        dotfiles_repo_local_destination: "{{dotfiles_home}}/Documents/dotfiles"
 
     - name: "Install Docker"
       include_role:
