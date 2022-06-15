@@ -2,10 +2,8 @@
 - name: My playbook
   hosts: localhost
   become: true
-  vars:
-    - local_username: "oscar"
-    - dotfiles_repo: "git@github.com:Isylwin/dotfiles.git"
-    - ssh_key: ".ssh/id_rsa"
+  vars_files: 
+    - "vars.yml"
 
   tasks:
     - name: Install required system packages
@@ -13,6 +11,10 @@
         name:
           - git
         state: latest
+
+    - name: Install git
+      include_role:
+        name: git
 
     - name: "Install Docker [Ubuntu]"
       include_role:
@@ -27,4 +29,4 @@
         name: gantsign.visual-studio-code 
       vars:
         users:
-          - username: "{{ local_username }}"      
+          - username: "{{ unix_username }}"

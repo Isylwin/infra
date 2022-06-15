@@ -15,5 +15,19 @@ Run once to install dependencies:
 `ansible-galaxy install -r requirements.yml`
 
 Run idempotently:
-`ansible-playbook playbook.yml --ask-become-pass`
+`ansible-playbook playbook.yml -e '@vars.vault.yml' --vault-password-file=vault.txt`
 
+See (Setup Vault)[Setup Vault]
+
+Alternatively you could add passwordless sudo to your current user and just run:
+`ansible-playbook playbook.yml`
+
+## Setup vault
+
+Create:
+`ansible-vault create vars.vault.yml`
+
+Edit:
+`ansible-vault edit vars.vault.yml`
+
+If desired, you could put the password for the vault in plaintext in `vault.txt`
