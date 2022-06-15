@@ -2,7 +2,7 @@
 - name: My playbook
   hosts: localhost
   become: true
-  vars_files: 
+  vars_files:
     - "vars.yml"
 
   tasks:
@@ -12,13 +12,21 @@
           - git
         state: latest
 
-    - name: Install git
+    - name: "Set git user config"
       include_role:
-        name: git
+        name: gantsign.git_user
+      vars:
+        users:
+          - username: "{{ unix_username }}"
+            git_user_name: "{{ git_user_name }}"
+            git_user_email: "{{ git_user_email }}"
+            git_user_force: "{{ git_user_force }}"
 
-    - name: "Install Docker [Ubuntu]"
+    - name: "Install Docker"
       include_role:
-        name: docker
+        name: geerlingguy.docker
+      vars:
+        docker_users: ["{{ unix_username }}"]
 
     - name: Install SSHD
       include_role:
@@ -26,7 +34,7 @@
 
     - name: Install Visual Studio Code
       include_role:
-        name: gantsign.visual-studio-code 
+        name: gantsign.visual-studio-code
       vars:
         users:
           - username: "{{ unix_username }}"
