@@ -1,0 +1,7 @@
+unix_username: "username"
+
+dotfiles_repo: "https://github.com/GithubUser/dotfiles.git"
+dotfiles_repo_version: main
+dotfiles_files:
+  - .gitconfig
+  - .inputrc

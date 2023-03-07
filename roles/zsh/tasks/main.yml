@@ -1,0 +1,61 @@
+- name: Install packages required by zsh
+  package:
+    name:
+      - zsh
+      - tar
+      - gzip
+    state: latest
+
+- name: Download antigen
+  get_url:
+    url: "https://git.io/antigen"
+    dest: "/home/{{ unix_username }}/antigen.zsh"
+    group: "{{ unix_username }}"
+    owner: "{{ unix_username }}"
+    mode: 0755
+
+- name: Set zsh as default shell
+  user:
+    name: '{{ unix_username }}'
+    shell: /bin/zsh
+
+- name: Create fonts directory
+  file:
+    path: "{{ fonts_path }}"
+    mode: '0755'
+    state: directory
+
+- name: Install powerlevel10k recommended fonts
+  get_url:
+    url: "https://github.com/romkatv/powerlevel10k-media/raw/master/{{ item }}"
+    dest: "{{ fonts_path }}/{{ item }}"
+    mode: '0644'
+  loop:
+    - MesloLGS%20NF%20Bold%20Italic.ttf
+    - MesloLGS%20NF%20Bold.ttf
+    - MesloLGS%20NF%20Italic.ttf
+    - MesloLGS%20NF%20Regular.ttf
+
+- name: Install kitty
+  shell: "curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin \\
+    launch=n dest=/usr/local/"
+
+- name: Symlink kitty
+  file:
+    src: "/usr/local/kitty.app/bin/kitty"
+    dest: /usr/local/bin/kitty
+    state: link
+
+- name: Copy desktop files
+  copy:
+    src: "/usr/local/kitty.app/share/applications/{{item}}"
+    dest: "/usr/share/applications/"
+  loop:
+    - kitty.desktop
+    - kitty-open.desktop
+
+- name: Vervelend
+  shell: 'sed -i "{{item}}" /usr/share/applications/kitty*.desktop'
+  loop: 
+    - "s|Icon=kitty|Icon=/usr/local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g"
+    - "s|Exec=kitty|Exec=/usr/local/kitty.app/bin/kitty|g"

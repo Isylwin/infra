@@ -1,0 +1,3 @@
+ansible_become_password: sudo_password
+bitwarden_client_id: bitwarden_client_id
+bitwarden_client_secret: bitwarden_api_key

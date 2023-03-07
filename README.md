@@ -29,5 +29,6 @@ Create:
 
 Edit:
 `ansible-vault edit vars.vault.yml`
+`ansible-vault edit vars.vault.yml --vault-password-file=vault.txt`
 
 If desired, you could put the password for the vault in plaintext in `vault.txt`

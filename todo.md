@@ -1,1 +1,2 @@
 - Figure out what I want with dotfiles
+- Add checking for updates for bitwarden

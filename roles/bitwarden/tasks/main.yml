@@ -1,0 +1,93 @@
+- name: Install packages required by Bitwarden
+  package:
+    name:
+      - jq
+    state: latest
+
+- name: Check Bitwarden exists
+  stat:
+    path: "{{ bitwarden_exe }}"
+  register: bitwarden_exists
+
+- name: Download and install Bitwarden CLI
+  unarchive:
+    src: https://vault.bitwarden.com/download/?app=cli&platform=linux
+    dest: "{{ bitwarden_path }}"
+    remote_src: yes
+    mode: 0755
+  when: not bitwarden_exists.stat.exists
+
+- name: Check Bitwarden status
+  command: "{{ bitwarden_exe }} status --raw"
+  register: bitwarden_status
+
+- set_fact:
+    bitwarden_authenticated: "{{ (bitwarden_status.stdout | from_json).status != 'unauthenticated' }}"
+    bitwarden_unlocked: "{{ (bitwarden_status.stdout | from_json).status == 'unlocked' }}"
+
+- debug:
+    msg: "auth={{bitwarden_authenticated}} unlocked={{bitwarden_unlocked}}"
+
+- name: Login to Bitwarden
+  command: "{{ bitwarden_exe }} login --apikey --nointeraction --raw"
+  environment:
+    BW_CLIENTID: "{{bitwarden_client_id}}"
+    BW_CLIENTSECRET: "{{bitwarden_client_secret}}"
+  when: not bitwarden_authenticated
+
+- name: "Ask for Bitwarden password"
+  pause:
+    prompt: "Enter Master password: "
+    echo: no
+  register: bitwarden_master_pass_input
+  when: not bitwarden_unlocked and bitwarden_master_pass is not defined
+
+- set_fact:
+    bitwarden_master_pass: "{{ bitwarden_master_pass_input.user_input }}"
+  when: bitwarden_master_pass is not defined
+
+- name: Unlock Bitwarden vault
+  command: "{{ bitwarden_exe }} unlock --passwordenv BW_PASSWD --nointeraction --raw"
+  environment:
+    BW_PASSWD: "{{bitwarden_master_pass}}"
+  register: bitwarden_unlock
+  when: not bitwarden_unlocked
+
+- set_fact:
+    bitwarden_session: "{{ lookup('env', 'BW_SESSION') | default(bitwarden_unlock.stdout, True) }}"
+
+- name: Generate a passphrase
+  command: "{{ bitwarden_exe }} generate --passphrase --words 3 --separator -"
+  environment:
+    BW_SESSION: "{{bitwarden_session}}"
+  register: bitwarden_passphrase_gen
+
+- set_fact:
+    bitwarden_passphrase: "{{ bitwarden_passphrase_gen.stdout }}"
+
+- name: Generate SSH keys
+  openssh_keypair:
+    path: "/home/{{ unix_username }}/.ssh/id_{{ ssh_key_type }}"
+    type: "{{ ssh_key_type }}"
+    passphrase: "{{ bitwarden_passphrase }}"
+    owner: "{{ unix_username }}"
+    group: "{{ unix_username }}"
+    comment: "{{ unix_username }}@{{ ansible_hostname }}"
+    regenerate: never
+  register: ssh_gen
+
+- debug:
+    msg: "{{ssh_gen}} {{ssh_gen.public_key}} {{bitwarden_passphrase}}"
+
+# - set_fact:
+#     baap_klapper: '.type = 2 | .folderId = "7129598c-8fea-4ee8-a068-aeb600d73017" | .secureNote.type = 0 | .notes = "{{ bitwarden_passphrase }}" | .name = "{{ unix_username }}@{{ ansible_hostname }}"'
+
+# - name: Put passphrase into Bitwarden
+#   command: "{{ bitwarden_exe }} get template item | jq \"{{baap_klapper}}\" | {{ bitwarden_exe }} encode | {{ bitwarden_exe }} create item"
+#   environment:
+#     BW_SESSION: "{{bitwarden_session}}"
+#   register: baap
+#   when: ssh_gen.changed
+
+# - debug:
+#     msg: "{{baap}}"

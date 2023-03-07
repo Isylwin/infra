@@ -1,0 +1,4 @@
+bitwarden_path: /usr/local/bin
+bitwarden_exe : "{{bitwarden_path}}/bw"
+
+ssh_key_type: ed25519
