@@ -13,14 +13,14 @@
           - neovim
         state: latest
 
-    # - name: Install Bitwarden
-    #   include_role:
-    #     name: bitwarden
-    #   tags: bitwarden
+    #- name: Install Bitwarden
+    #  include_role:
+    #    name: bitwarden
+    #  tags: bitwarden
 
-    # - name: Install zsh
-    #   include_role:
-    #     name: zsh
+    - name: Install zsh
+      include_role:
+        name: zsh
 
     # - name: Install dotfiles
     #   include_role:
@@ -29,22 +29,26 @@
     #     dotfiles_home: "/home/{{unix_username}}"
     #     dotfiles_repo_local_destination: "{{dotfiles_home}}/Documents/dotfiles"
 
-    # - name: "Install Docker"
-    #   include_role:
-    #     name: geerlingguy.docker
-    #   vars:
-    #     docker_users: ["{{ unix_username }}"]
+    - name: Install chezmoi
+      include_role:
+        name: chezmoi
 
-    # - name: Install SSHD
-    #   include_role:
-    #     name: willshersystems.sshd
+    - name: "Install Docker"
+      include_role:
+        name: geerlingguy.docker
+      vars:
+        docker_users: ["{{ unix_username }}"]
 
-    # - name: Install Visual Studio Code
-    #   include_role:
-    #     name: gantsign.visual-studio-code
-    #   vars:
-    #     users:
-    #       - username: "{{ unix_username }}"
+    - name: Install SSHD
+      include_role:
+        name: willshersystems.sshd
+
+    - name: Install Visual Studio Code
+      include_role:
+        name: gantsign.visual-studio-code
+      vars:
+        users:
+          - username: "{{ unix_username }}"
     
     - name: Install pyenv
       include_role:
